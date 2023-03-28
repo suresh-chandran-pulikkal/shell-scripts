@@ -2,8 +2,25 @@
 if 0 | endif
 
 set nocompatible              " be iMproved, required
-filetype off                  " required
+filetype on                  " required
 
+" NeoVim plugin manager
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin(has('nvim') ? stdpath('data') . '/plugged' : '~/.vim/plugged')
+"Plug 'ncm2/ncm2'
+"Plug 'SirVer/ultisnips'
+"Plug 'honza/vim-snippets'
+Plug 'ycm-core/YouCompleteMe' " Autocompletion plugin
+" Plug 'koalaman/shellcheck' " shellcheck  to fix and lint Shell scripts #Not required anymore, it already included in ALE
+Plug 'dense-analysis/ale' " Asynchronous lint engine
+call plug#end()
+
+" Vundle plugin manager
 " set the runtime path to include Vundle and initialize
 "set rtp+=~/.vim/bundle/Vundle.vim
 
@@ -35,7 +52,7 @@ filetype off                  " required
 
 " All of your Plugins must be added before the following line
 "Pcall vundle#end()            " required
-filetype plugin indent on    " required
+" filetype plugin indent on    " required
 " To ignore plugin indent changes, instead use:
 "filetype plugin on
 "
@@ -52,7 +69,7 @@ if &compatible
   set nocompatible               " Be iMproved
 endif
 
-" Pathogen
+" Pathogen plugin manager
 " set nocp
 "execute pathogen#infect()
 " syntax on
@@ -125,8 +142,7 @@ au FocusGained,BufEnter * :silent! !
 set guifont=Inconsolata\ for\ Powerline:h24
 set cursorline    " highlight the current line
 set cursorcolumn  " higlight cursor with a long vertical line
-" set highlight CursorLine   cterm=NONE ctermbg=NONE ctermfg=darkgreen
- hi CursorLine cterm=NONE ctermbg=NONE ctermfg=red
+ hi CursorLine cterm=NONE ctermbg=NONE ctermfg=blue
 set visualbell    " stop that ANNOYING beeping
 set wildmenu
 set wildmode=list:longest,full
@@ -137,7 +153,7 @@ set ttyfast
 " set ttymouse=xterm2
 
 " Make searching better
-set gdefault      " Never have to type /g at the end of search / replace again
+" set gdefault      " Never have to type /g at the end of search / replace again
 set ignorecase    " case insensitive searching (unless specified)
 set smartcase
 set hlsearch
@@ -153,7 +169,6 @@ set expandtab
 
 " Display extra whitespace
 " set list listchars=tab:»·,trail:·,nbsp:·
-
 " Make it obvious where 100 characters is
 " set textwidth=100
 " set formatoptions=cq
@@ -183,7 +198,7 @@ let g:html_indent_tags = 'li\|p'
 
 " ================ Scrolling ========================
 
-set scrolloff=8         "Start scrolling when we're 8 lines away from margins
+set scrolloff=19         "Start scrolling when we're 19 lines away from margins
 set sidescrolloff=15
 set sidescroll=1
 
@@ -203,10 +218,10 @@ autocmd InsertEnter * call ToggleRelativeOn()
 autocmd InsertLeave * call ToggleRelativeOn()
 
 "Use enter to create new lines w/o entering insert mode
-nnoremap <CR> o<Esc>
+" nnoremap <CR> o<Esc>
 "Below is to fix issues with the ABOVE mappings in quickfix window
-autocmd CmdwinEnter * nnoremap <CR> <CR>
-autocmd BufReadPost quickfix nnoremap <CR> <CR>
+" autocmd CmdwinEnter * nnoremap <CR> <CR>
+" autocmd BufReadPost quickfix nnoremap <CR> <CR>
 
 " Quicker window movement
 nnoremap <C-j> <C-w>j
@@ -214,7 +229,9 @@ nnoremap <C-k> <C-w>k
 nnoremap <C-h> <C-w>h
 nnoremap <C-l> <C-w>l
 " <c-h> is interpreted as <bs> in neovim
+"
 " This is a bandaid fix until the team decides how
+"
 " they want to handle fixing it...(https://github.com/neovim/neovim/issues/2048)
 nnoremap <silent> <bs> :TmuxNavigateLeft<cr>
 
@@ -245,7 +262,7 @@ if (&t_Co > 2 || has("gui_running")) && !exists("syntax_on")
   syntax on
 endif
 
-" Load up all of our plugins
+" Load up all plugins
 if filereadable(expand("~/.vimrc.bundles"))
   source ~/.vimrc.bundles
 endif
@@ -261,12 +278,11 @@ map <silent><Leader><S-p> :set paste<CR>O<esc>"*]p:set nopaste<cr>"
 " display only differences in vimdiff
 " set diffopt=filler,context:0
 
+
+
 """ MORE AWESOME HOTKEYS
-"
-"
 " Run the q macro
 nnoremap <leader>q @q
-
 
 " bind H to toggle cursor highlighting
 :nnoremap H :set cursorline! cursorcolumn!<CR>
@@ -373,31 +389,41 @@ augroup END
  \ endif
  " don't write swapfile on most commonly used directories for NFS mounts or USB sticks
  autocmd BufNewFile,BufReadPre /media/*,/run/media/*,/mnt/* set directory=~/tmp,/var/tmp,/tmp
-     " start with spec file template
+
+" start with RPM spec file template
 autocmd BufNewFile *.spec 0r ~/.vim/vimfiles/template.spec
-autocmd BufNewFile *.spec $-2r !date '+* \%a \%b \%e \%Y Suresh Chandran <suresh_chandran@carrefour.com> 0-1'
+autocmd BufNewFile *.spec $-2r !date '+* \%a \%b \%e \%Y Suresh Chandran <sureshc775@gmail.com> 0-1'
 autocmd BufNewFile *.spec 1
 autocmd BufNewFile *.spec /^Name:/
 autocmd BufNewFile *.spec nohl
 autocmd BufNewFile *.spec :put =expand('%:r')
 autocmd BufNewFile *.spec normal! kJ0
-autocmd BufNewFile,BufRead *.spec :map! <F12> <C-R>=strftime('* %a %b %e %Y Suresh Chandran <suresh_chandran@carrefour.com> ')<CR>
+autocmd BufNewFile,BufRead *.spec :map! <F12> <C-R>=strftime('* %a %b %e %Y Suresh Chandran <sureshc775@gmail.com> ')<CR>
 augroup END
 endif
 
-" set file encoding 
+" start python file with a template
+autocmd BufNewFile *.py 0r ~/.vim/templates/skeleton.py
+
+" start shell script with a template
+autocmd BufNewFile *.sh 0r ~/.vim/templates/skeleton.sh
+" set file encoding
 set encoding=utf-8
 
-" NeoVim plugin manager
-let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
-if empty(glob(data_dir . '/autoload/plug.vim'))
-  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
+" Use python fixers and linters on ALE
+let g:ale_linters = {'python' : ['flake8','bandit','pydocstyle','mypy']}
+let g:ale_fixers = {
+      \ '*': ['remove_trailing_lines','trim_whitespace'],
+      \ 'python' : ['black','isort']
+\ }
 
-call plug#begin(has('nvim') ? stdpath('data') . '/plugged' : '~/.vim/plugged')
-"Plug 'ncm2/ncm2'
-"Plug 'SirVer/ultisnips'
-"Plug 'honza/vim-snippets'
-Plug 'ycm-core/YouCompleteMe'
-call plug#end()
+" Use ansible YAML/JSON fixer and linter on ALE
+let g:ale_linters = {'ansible' : ['spectral','yamllint','ansible-lint']}
+let g:ale_fixers = {
+      \ 'yaml' : ['yamlfix']
+\ }
+
+" Use git fixer and linter on ALE
+let g:ale_linters = {'git' : ['actionlint']}
+let g:ale_fix_on_save =1
+

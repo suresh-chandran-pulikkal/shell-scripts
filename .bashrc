@@ -10,21 +10,28 @@ fi
 export TERM=xterm-256color
 
 #start tmux session
-if [ -z "$TMUX" ]; then
-	if [ -z  "$(tmux list-sessions 2>/dev/null)" ]; then
-		exec tmux new-session
-	else
-		exec tmux attach
-	fi
+if [ command -v tmux >/dev/null 2>&1 ]; then
+  echo "tmux not found on this machine"
+else
+  if [ -z "$TMUX" ]; then
+    if [ -z  "$(tmux list-sessions 2>/dev/null)" ]; then
+      exec tmux new-session
+    else
+      exec tmux attach
+    fi
+    unbind -a
+  fi
 fi
 
 # update ssh agent socket
 SSHAGENT=/usr/bin/ssh-agent
 SSHAGENTARGS="-s"
 if [ -z "$SSH_AUTH_SOCK" ] && [ -x "$SSHAGENT" ]; then
-  eval `"$SSHAGENT $SSHAGENTARGS"` >/dev/null
+  eval $($SSHAGENT $SSHAGENTARGS) >/dev/null
   trap "kill $SSH_AGENT_PID" 0
 fi
+# load Fuzzy finder if present
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 #load rsa key
 ssh-add 2>/dev/null
@@ -65,8 +72,8 @@ extract () {
    fi
  }
 
-# append to the history file, don't overwrite it    
-shopt -s histappend 
+# append to the history file, don't overwrite it
+shopt -s histappend
 shopt -s autocd
 shopt -s cdspell
 shopt -s cmdhist
@@ -82,9 +89,9 @@ bind '"\e[A": history-search-backward'
 bind '"\e[B": history-search-forward'
 bind 'set show-all-if-ambiguous on'
 
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)          
-HISTSIZE=100000                                       
-HISTFILESIZE=200000        
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=100000
+HISTFILESIZE=200000
 
 # Source global definitions
 if [ -f /etc/bashrc ]; then
@@ -124,8 +131,7 @@ END
 #unset ur
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="/home/azzhangc/.sdkman"
-[[ -s "/home/azzhangc/.sdkman/bin/sdkman-init.sh" ]] && source "/home/azzhangc/.sdkman/bin/sdkman-init.sh"
+export SDKMAN_DIR="/home/suresh/.sdkman"
+[[ -s "/home/suresh/.sdkman/bin/sdkman-init.sh" ]] && source "/home/azzhangc/.sdkman/bin/sdkman-init.sh"
 
 
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
