@@ -1,2 +1,2 @@
-# dotfiles
-Customized .bashrc, .vimrc, .tmux.conf 
+# CUSTOMIZED DOT FILES
+These are the customized .bashrc, .vimrc, .tmux.conf for better productivity
